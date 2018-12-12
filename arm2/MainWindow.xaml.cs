@@ -41,6 +41,22 @@ namespace arm2
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
+            dataGrid.Items.Clear();
+            dataGrid.Columns.Clear();
+            ProductType list = new ProductType();
+            foreach (var h in list.Header)
+            {
+                DataGridTextColumn textColumn = new DataGridTextColumn();
+                textColumn.Header = h.Value;
+                textColumn.Binding = new Binding(h.Key);
+                dataGrid.Columns.Add(textColumn);
+            }
+            dataGrid.Tag = "ProductType";
+            ProductType[] list2 = list.Where(sql: "select * from product_types");
+            foreach (ProductType p in list2)
+            {
+                dataGrid.Items.Add(new ProductTypeItem(p));
+            }
 
         }
 
@@ -57,7 +73,7 @@ namespace arm2
                 dataGrid.Columns.Add(textColumn);
             }
             dataGrid.Tag = "Product";
-            Product[] list2 = list.Where("select * from products");
+            Product[] list2 = list.Where(sql: "select * from products");
             foreach(Product p in list2)
             {
                 dataGrid.Items.Add(new ProductItem(p));
@@ -71,9 +87,26 @@ namespace arm2
                 case "Product":
                     ProductItem pi = (ProductItem)dataGrid.SelectedItem;
                     Product p = new Product(id: pi.ID);
-                break;
+                    EditForm ef = new EditForm(product: new Product(id: pi.ID));
+                    /*
+                     
+            { "ID","ID" },
+            { "Parent","Родитель" },
+            { "Type","Тип" },
+            { "SerialNumber","Серийный номер" },
+            { "Reopen","Восстановлен?" },
+            { "Created","Создан" },
+            { "Updated","Изменени" },
+            { "Deleted","Удален" }
+                     
+                     */
+                    ef.Show();
+                    break;
+                case "ProductType":
+                    ProductTypeItem pti = (ProductTypeItem)dataGrid.SelectedItem;
+                    ProductType pt = new ProductType(id: pti.ID);
+                    break;
             }
-            
         }
     }
 }

@@ -14,7 +14,7 @@
             </MenuItem>
             <MenuItem Header="Представление">
                 <MenuItem Header="Список продуктов" Click="MenuItem_Click_1"></MenuItem>
-                <MenuItem Header="Список типов"></MenuItem>
+                <MenuItem Header="Список типов" Click="MenuItem_Click"></MenuItem>
             </MenuItem>
         </Menu>
         <DataGrid x:Name="dataGrid" Margin="0,17.96,0,0" ColumnHeaderHeight="{DynamicResource {x:Static SystemParameters.CaptionHeightKey}}" ColumnWidth="200" MouseDoubleClick="DataGrid_MouseDoubleClick" IsReadOnly="True"/>

@@ -107,12 +107,15 @@ namespace arm2
                 foreach (var d in data)
                 {
                     sql += (first ? "" : ", ") + d.Key + "='" + d.Value + "'";
+                    first = false;
                 }
                 first = true;
                 foreach (var w in where)
                 {
                     sql += (first ? " where " : " and ") + w.Key + "='" + w.Value + "' ";
+                    first = false;
                 }
+                MessageBox.Show(sql);
                 MySqlCommand cmd = connection.CreateCommand();
                 cmd.CommandText = sql;
                 cmd.ExecuteNonQuery();

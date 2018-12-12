@@ -10,7 +10,7 @@ namespace arm2
     public class Product
     {
         private DB db = null;
-        public int ID = 0;
+        public int ID = -1;
         public Product Parent;
         public ProductType Type;
         public string SerialNumber = "";
@@ -114,26 +114,29 @@ namespace arm2
             }
             string[,] arr = db.Select(sql);
             Product[] parr = new Product[arr.GetLength(0)];
-            MessageBox.Show(sql);
             for (int i = 0; i < parr.Length; i++)
             {
                 parr[i] = new Product();
-                parr[i].ID = Convert.ToInt32(arr[0, 0]);
-                parr[i].Parent = new Product(id: Convert.ToInt32(arr[0, 1]));
-                parr[i].Type = new ProductType(id: Convert.ToInt32(arr[0, 2]));
-                parr[i].SerialNumber = arr[0, 3];
-                parr[i].Reopen = arr[0, 4] == "1";
-                parr[i].Created = db.StrToDate(arr[0, 5]);
-                parr[i].Updated = db.StrToDate(arr[0, 6]);
-                parr[i].Deleted = db.StrToDate(arr[0, 7]);
+                parr[i].ID = Convert.ToInt32(arr[i, 0]);
+                parr[i].Parent = new Product(id: Convert.ToInt32(arr[i, 1]));
+                parr[i].Type = new ProductType(id: Convert.ToInt32(arr[i, 2]));
+                parr[i].SerialNumber = arr[i, 3];
+                parr[i].Reopen = arr[i, 4] == "1";
+                parr[i].Created = db.StrToDate(arr[i, 5]);
+                parr[i].Updated = db.StrToDate(arr[i, 6]);
+                parr[i].Deleted = db.StrToDate(arr[i, 7]);
             }
             return parr;
 
         }
-        public Product[] Add(int parent = -1, int type = -1, string snumber = null)
+        public Product Add(int parent = -1, int type = -1, string snumber = null)
         {
             int id = db.Insert("products", new string[] { "pparent", "pptid", "psernum" }, new string[] { parent.ToString(), type.ToString(), snumber });
-            return Where(id: id);
+            Product[] arr = Where(id: id);
+            if (arr.Length > 0)
+                return arr[0];
+            else
+                return null;
         }
         public bool Save()
         {
@@ -141,8 +144,7 @@ namespace arm2
                 { "pparent",Parent.ID.ToString() },
                 { "pptid",Type.ID.ToString()},
                 { "psernum",SerialNumber},
-                { "preopen",Reopen?"1":"0"},
-                { "deleted_at",db.DateToStr(Deleted)}
+                { "preopen",Reopen?"1":"0"}
             }, new Dictionary<string, string> {
                 { "pid", ID.ToString() }
             });
