@@ -1,0 +1,22 @@
+﻿<Window x:Class="arm2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:arm2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Visibility="Visible" WindowState="Maximized" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Menu VerticalAlignment="Top">
+            <MenuItem Header="Создать">
+                <MenuItem Header="Создать тип" Click="MenuItem_Click"></MenuItem>
+                <MenuItem Header="Создать продукт"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Представление">
+                <MenuItem Header="Список продуктов" Click="MenuItem_Click_1"></MenuItem>
+                <MenuItem Header="Список типов"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <DataGrid x:Name="dataGrid" Margin="0,17.96,0,0" ColumnHeaderHeight="{DynamicResource {x:Static SystemParameters.CaptionHeightKey}}" ColumnWidth="200" MouseDoubleClick="DataGrid_MouseDoubleClick" IsReadOnly="True"/>
+    </Grid>
+</Window>
