@@ -140,12 +140,37 @@ namespace arm2
         }
         public bool Save()
         {
-            return db.Update("products", new Dictionary<string, string> {
-                { "pparent",Parent.ID.ToString() },
-                { "pptid",Type.ID.ToString()},
-                { "psernum",SerialNumber},
-                { "preopen",Reopen?"1":"0"}
-            }, new Dictionary<string, string> {
+            if (ID > 0)
+            {
+                return db.Update("products", new Dictionary<string, string> {
+                    { "pparent",Parent.ID.ToString() },
+                    { "pptid",Type.ID.ToString()},
+                    { "psernum",SerialNumber},
+                    { "preopen",Reopen?"1":"0"}
+                }, new Dictionary<string, string> {
+                    { "pid", ID.ToString() }
+                });
+            }
+            else
+            {
+                Product p = Add(parent: Parent.ID, type: Type.ID, snumber: SerialNumber);
+                if (p.ID > 0)
+                {
+                    ID = p.ID;
+                    Parent = p.Parent;
+                    Type = p.Type;
+                    SerialNumber = p.SerialNumber;
+                    Reopen = p.Reopen;
+                    Created = p.Created;
+                    Updated = p.Updated;
+                    Deleted = p.Deleted;
+                }
+                return ID > 0;
+            }
+        }
+        public bool Delete()
+        {
+            return db.Delete("products", new Dictionary<string, string> {
                 { "pid", ID.ToString() }
             });
         }
@@ -158,16 +183,16 @@ namespace arm2
             Parent = p.Parent.ID;
             Type = p.Type.Name;
             SerialNumber = p.SerialNumber;
-            Reopen = p.Reopen;
-            Created = p.Created.ToLongDateString();
-            Updated = p.Updated.ToLongDateString();
-            Deleted = p.Deleted.ToLongDateString();
+            Reopen = p.Reopen ? "Да" : "Нет";
+            Created = p.Created != DateTime.MinValue ? p.Created.ToLongDateString() : "";
+            Updated = p.Updated != DateTime.MinValue ? p.Updated.ToLongDateString() : "";
+            Deleted = p.Deleted != DateTime.MinValue ? p.Deleted.ToLongDateString() : "";
         }
         public int ID { get; set; }
         public int Parent { get; set; }
         public string Type { get; set; }
         public string SerialNumber { get; set; }
-        public bool Reopen { get; set; }
+        public string Reopen { get; set; }
         public string Created { get; set; }
         public string Updated { get; set; }
         public string Deleted { get; set; }

@@ -115,7 +115,32 @@ namespace arm2
                     sql += (first ? " where " : " and ") + w.Key + "='" + w.Value + "' ";
                     first = false;
                 }
-                MessageBox.Show(sql);
+                MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = sql;
+                cmd.ExecuteNonQuery();
+                res = true;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+                res = false;
+            }
+            connection.Close();
+            return res;
+        }
+        public bool Delete(string table, Dictionary<string, string> where)
+        {
+            bool res = false;
+            connection.Open();
+            try
+            {
+                string sql = "update " + table + " set deleted_at=" + DateToStr(DateTime.Now);
+                bool first = true;
+                foreach (var w in where)
+                {
+                    sql += (first ? " where " : " and ") + w.Key + "='" + w.Value + "' ";
+                    first = false;
+                }
                 MySqlCommand cmd = connection.CreateCommand();
                 cmd.CommandText = sql;
                 cmd.ExecuteNonQuery();

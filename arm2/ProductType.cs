@@ -21,8 +21,8 @@ namespace arm2
         public Dictionary<string, string> Header = new Dictionary<string, string>() {
             { "ID","ID" },
             { "Name","Название" },
-            { "Unit","Ед.измерения" },
-            { "Cost","Кол-во" },
+            { "Unit","Валюта" },
+            { "Cost","Стоимость" },
             { "Created","Создан" },
             { "Updated","Изменени" },
             { "Deleted","Удален" }
@@ -33,7 +33,7 @@ namespace arm2
             if (id > 0)
             {
                 ProductType[] arr = Where(id: id);
-                if (arr.Length>0)
+                if (arr.GetLength(0) > 0)
                 {
                     ID = arr[0].ID;
                     Name = arr[0].Name;
@@ -79,17 +79,17 @@ namespace arm2
                     sql += and + "ptcost=0";
                     and = " and ";
                 }
-                if (created != null)
+                if (created != DateTime.MinValue)
                 {
                     sql += and + "created_at >= " + db.DateToStr(created) + " and created_at < date_add(" + db.DateToStr(created) + ", interval 1 day)";
                     and = " and ";
                 }
-                if (updated != null)
+                if (updated != DateTime.MinValue)
                 {
                     sql += and + "updated_at >= " + db.DateToStr(updated) + " and updated_at < date_add(" + db.DateToStr(updated) + ", interval 1 day)";
                     and = " and ";
                 }
-                if (deleted != null)
+                if (deleted != DateTime.MinValue)
                 {
                     sql += and + "deleted_at >= " + db.DateToStr(deleted) + " and deleted_at < date_add(" + db.DateToStr(deleted) + ", interval 1 day)";
                     and = " and ";
@@ -101,8 +101,8 @@ namespace arm2
             {
                 pts[i] = new ProductType();
                 pts[i].ID = Convert.ToInt32(arr[i, 0]);
-                pts[i].Name = arr[0, 1];
-                pts[i].Unit = arr[0, 2];
+                pts[i].Name = arr[i, 1];
+                pts[i].Unit = arr[i, 2];
                 pts[i].Cost = (float)Convert.ToDouble(arr[i, 3]);
                 pts[i].Created = db.StrToDate(arr[i, 4]);
                 pts[i].Updated = db.StrToDate(arr[i, 5]);
@@ -121,12 +121,35 @@ namespace arm2
         }
         public bool Save()
         {
-            return db.Update("product_types", new Dictionary<string, string> {
-                { "ptname",Name },
-                { "ptunit",Unit },
-                { "ptcost",Cost.ToString() },
-                { "deleted_at",db.DateToStr(Deleted) }
-            }, new Dictionary<string, string> {
+            if (ID > 0)
+            {
+                return db.Update("product_types", new Dictionary<string, string> {
+                    { "ptname",Name },
+                    { "ptunit",Unit },
+                    { "ptcost",Cost.ToString() }
+                }, new Dictionary<string, string> {
+                    { "ptid", ID.ToString() }
+                });
+            }
+            else
+            {
+                ProductType pt = Add(name: Name, unit: Unit, cost: Cost);
+                if (pt.ID > 0)
+                {
+                    ID = pt.ID;
+                    Name = pt.Name;
+                    Unit = pt.Unit;
+                    Cost = pt.Cost;
+                    Created = pt.Created;
+                    Updated = pt.Updated;
+                    Deleted = pt.Deleted;
+                }
+                return ID>0;
+            }
+        }
+        public bool Delete()
+        {
+            return db.Delete("product_types", new Dictionary<string, string> {
                 { "ptid", ID.ToString() }
             });
         }
@@ -139,15 +162,14 @@ namespace arm2
             Name = p.Name;
             Unit = p.Unit;
             Cost = p.Cost;
-            Created = p.Created.ToLongDateString();
-            Updated = p.Updated.ToLongDateString();
-            Deleted = p.Deleted.ToLongDateString();
+            Created = p.Created != DateTime.MinValue ? p.Created.ToLongDateString() : "";
+            Updated = p.Updated != DateTime.MinValue ? p.Updated.ToLongDateString() : "";
+            Deleted = p.Deleted != DateTime.MinValue ? p.Deleted.ToLongDateString() : "";
         }
         public int ID { get; set; }
         public string Name { get; set; }
         public string Unit { get; set; }
         public float Cost { get; set; }
-        public bool Reopen { get; set; }
         public string Created { get; set; }
         public string Updated { get; set; }
         public string Deleted { get; set; }

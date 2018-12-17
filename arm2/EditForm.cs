@@ -20,6 +20,39 @@ namespace arm2
             editType = type;
             if (editType != null)
             {
+                Control[] idFld0 = Element("ReadOnly", editType.Header["ID"]);
+                this.Controls.Add(idFld0[0]);
+                idFld0[1].Text = editType.ID.ToString();
+                idFld0[1].Name = "ID";
+                this.Controls.Add(idFld0[1]);
+                Control[] nmFld = Element("Input", editType.Header["Name"]);
+                this.Controls.Add(nmFld[0]);
+                nmFld[1].Text = editType.Name;
+                nmFld[1].Name = "Name";
+                this.Controls.Add(nmFld[1]);
+                Control[] utFld = Element("Input", editType.Header["Unit"]);
+                this.Controls.Add(utFld[0]);
+                utFld[1].Text = editType.Unit;
+                utFld[1].Name = "Unit";
+                this.Controls.Add(utFld[1]);
+                Control[] ctFld = Element("Number", editType.Header["Cost"]);
+                this.Controls.Add(ctFld[0]);
+                NumericUpDown ctud = (NumericUpDown)ctFld[1];
+                ctud.Text = editType.Cost.ToString();
+                ctud.Maximum = Int32.MaxValue;
+                ctud.Minimum = 0;
+                ctud.Name = "Cost";
+                this.Controls.Add(ctud);
+                Control[] save = Element("Button");
+                save[1].Text = "Сохранить";
+                save[1].Click += new EventHandler(SaveClick);
+                this.Controls.Add(save[1]);
+                if (editType.ID > 0) {
+                    Control[] del = Element("Button");
+                    del[1].Text = " Удалить";
+                    del[1].Click += new EventHandler(DelClick);
+                    this.Controls.Add(del[1]);
+                }
             }
             else
             {
@@ -35,10 +68,9 @@ namespace arm2
                 foreach (Product a in arr)
                 {
                     parent.Items.Add(new KeyValuePair<string, int>(a.SerialNumber, a.ID));
-                    if (a.ID == editProduct.Parent.ID)
+                    if (editProduct.Parent != null && a.ID == editProduct.Parent.ID)
                         parent.SelectedIndex = parent.Items.IndexOf(new KeyValuePair<string, int>(a.SerialNumber, a.ID));
                 }
-                parent.SelectedValue = editProduct.Parent.ID;
                 parent.DisplayMember = "key";
                 parent.ValueMember = "value";
                 parent.Name = "Parent";
@@ -46,12 +78,13 @@ namespace arm2
                 Control[] typeFld = Element("Select", editProduct.Header["Type"]);
                 this.Controls.Add(typeFld[0]);
                 ComboBox ptype = (ComboBox)typeFld[1];
-                ProductType[] arr2 = new ProductType().Where(sql: "select * from product_types where deleted_at is null and ptid<>" + editProduct.Type.ID.ToString());
+                ProductType[] arr2 = new ProductType().Where(sql: "select * from product_types where deleted_at is null");
                 foreach (ProductType a in arr2)
                 {
                     ptype.Items.Add(new KeyValuePair<string, int>(a.Name, a.ID));
+                    if (editProduct.Type != null && a.ID == editProduct.Type.ID)
+                        ptype.SelectedIndex = ptype.Items.IndexOf(new KeyValuePair<string, int>(a.Name, a.ID));
                 }
-                ptype.SelectedValue = editProduct.Type.ID;
                 ptype.DisplayMember = "key";
                 ptype.ValueMember = "value";
                 ptype.Name = "ProductType";
@@ -71,7 +104,13 @@ namespace arm2
                 save[1].Text = "Сохранить";
                 save[1].Click += new EventHandler(SaveClick);
                 this.Controls.Add(save[1]);
-
+                if (editProduct.ID > 0)
+                {
+                    Control[] del = Element("Button");
+                    del[1].Text = " Удалить";
+                    del[1].Click += new EventHandler(DelClick);
+                    this.Controls.Add(del[1]);
+                }
             }
             this.Height = TopPos+45;
         }
@@ -104,9 +143,13 @@ namespace arm2
         }
         public void SaveClick(object sender, EventArgs e)
         {
-
+            bool success = false;
             if (editType != null)
             {
+                editType.Name = this.Controls.Find("Name", true)[0].Text;
+                editType.Unit = this.Controls.Find("Unit", true)[0].Text;
+                float.TryParse(this.Controls.Find("Cost", true)[0].Text, out editType.Cost);
+                success = editType.Save();
             }
             else
             {
@@ -114,8 +157,30 @@ namespace arm2
                 editProduct.Type = new ProductType(id: ComboBoxValue(this.Controls.Find("ProductType", true)[0]));
                 editProduct.SerialNumber = this.Controls.Find("SerialNumber", true)[0].Text;
                 editProduct.Reopen = ((CheckBox)this.Controls.Find("Reopen", true)[0]).Checked;
-                editProduct.Save();
+                success = editProduct.Save();
             }
+            if (success)
+            {
+                MessageBox.Show("Изменения успешно сохранены");
+                this.Close();
+            }
+            else
+                MessageBox.Show("Не удалось сохранить");
+        }
+        public void DelClick(object sender, EventArgs e)
+        {
+            bool success = false;
+            if (editType != null)
+                success = editType.Delete();
+            else
+                success = editProduct.Delete();
+            if (success)
+            {
+                MessageBox.Show("Запись успешно удалена");
+                this.Close();
+            }
+            else
+                MessageBox.Show("Не удалось удалить");
         }
         private int ComboBoxValue(Control ctrl)
         {

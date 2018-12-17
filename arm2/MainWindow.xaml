@@ -9,8 +9,8 @@
     <Grid>
         <Menu VerticalAlignment="Top">
             <MenuItem Header="Создать">
-                <MenuItem Header="Создать тип" Click="MenuItem_Click"></MenuItem>
-                <MenuItem Header="Создать продукт"></MenuItem>
+                <MenuItem Header="Создать тип" Click="MenuItem_Click_2"></MenuItem>
+                <MenuItem Header="Создать продукт" Click="MenuItem_Click_3"></MenuItem>
             </MenuItem>
             <MenuItem Header="Представление">
                 <MenuItem Header="Список продуктов" Click="MenuItem_Click_1"></MenuItem>

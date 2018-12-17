@@ -52,7 +52,7 @@ namespace arm2
                 dataGrid.Columns.Add(textColumn);
             }
             dataGrid.Tag = "ProductType";
-            ProductType[] list2 = list.Where(sql: "select * from product_types");
+            ProductType[] list2 = list.Where(sql: "select * from product_types where deleted_at is null");
             foreach (ProductType p in list2)
             {
                 dataGrid.Items.Add(new ProductTypeItem(p));
@@ -73,7 +73,7 @@ namespace arm2
                 dataGrid.Columns.Add(textColumn);
             }
             dataGrid.Tag = "Product";
-            Product[] list2 = list.Where(sql: "select * from products");
+            Product[] list2 = list.Where(sql: "select * from products where deleted_at is null");
             foreach(Product p in list2)
             {
                 dataGrid.Items.Add(new ProductItem(p));
@@ -87,26 +87,47 @@ namespace arm2
                 case "Product":
                     ProductItem pi = (ProductItem)dataGrid.SelectedItem;
                     Product p = new Product(id: pi.ID);
-                    EditForm ef = new EditForm(product: new Product(id: pi.ID));
-                    /*
-                     
-            { "ID","ID" },
-            { "Parent","Родитель" },
-            { "Type","Тип" },
-            { "SerialNumber","Серийный номер" },
-            { "Reopen","Восстановлен?" },
-            { "Created","Создан" },
-            { "Updated","Изменени" },
-            { "Deleted","Удален" }
-                     
-                     */
+                    EditForm ef = new EditForm(product: p);
+                    ef.FormClosed += DataGrid_Refresh;
                     ef.Show();
                     break;
                 case "ProductType":
                     ProductTypeItem pti = (ProductTypeItem)dataGrid.SelectedItem;
                     ProductType pt = new ProductType(id: pti.ID);
+                    EditForm eft = new EditForm(type: pt);
+                    eft.FormClosed += DataGrid_Refresh;
+                    eft.Show();
                     break;
             }
+        }
+
+        private void DataGrid_Refresh(object sender, System.Windows.Forms.FormClosedEventArgs e)
+        {
+            switch (dataGrid.Tag)
+            {
+                case "Product":
+                    MenuItem_Click_1(sender, null);
+                    break;
+                case "ProductType":
+                    MenuItem_Click(sender, null);
+                    break;
+            }
+        }
+
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+            EditForm eft = new EditForm(type: new ProductType());
+            dataGrid.Tag = "ProductType";
+            eft.FormClosed += DataGrid_Refresh;
+            eft.Show();
+        }
+
+        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        {
+            EditForm ef = new EditForm(product: new Product());
+            dataGrid.Tag = "Product";
+            ef.FormClosed += DataGrid_Refresh;
+            ef.Show();
         }
     }
 }
